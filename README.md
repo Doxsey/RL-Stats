@@ -22,7 +22,7 @@ I created RL Stats.ahk that contains the functions and the code. AHK has a main 
 ```c
 #include C:\Users\Ryan\Desktop\RL\Repository\RL-Stats\RL Stats.ahk
 
-^1:: ;Creates the initial GUI and loads the stats. Ctrl-1 activates this function.
+^1:: ;Creates the initial GUI and loads the stats. Ctrl+1 activates this function.
 GoSub, CreateInitialGui
 GoSub, InitializeLocalData
 GoSub, InitialGuiRanks
