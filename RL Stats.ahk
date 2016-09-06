@@ -14,17 +14,9 @@ SendMode Input  ; Recommended for new scripts due to its superior speed and reli
 
 return ;returns from initial load (otherwise it runs code until 1st return, i think anyway)
 
-;^1::
-;GoSub, CreateInitialGui
-;GoSub, InitializeLocalData
-;GoSub, InitialGuiRanks
-;return
-
-;^2::
-;GoSub, RunningUpdate
-;return
 
 RunningUpdate:
+	;An ini file is used to store old rank and current rank for each game mode
 	iniLocation = C:\Users\Ryan\Desktop\RL\iniRL.ini ;Change to global later
 	IniRead, ini3sRank, %iniLocation%, 3v3Standard, CurrentRank
 	IniRead, iniNumOf3sGames, %iniLocation%, 3v3Standard, CurrentGameCount
@@ -38,47 +30,51 @@ RunningUpdate:
 	IniRead, iniNumOf3SoloGames, %iniLocation%, Solo Standard 3v3, CurrentGameCount
 	IniRead, iniPrev3SoloRank, %iniLocation%, Solo Standard 3v3, PreviousRank
 	
-	Gui +LastFound
-	GuiControl,,StatusText,Updating...
+	Gui +LastFound ;Sets gui control to the last found ahk gui.
+	GuiControl,,StatusText,Updating... ;Changes the text "StatusText" to "Updating..."
 	
 	
-	UrlDownloadToFile http://rocketleague.tracker.network/profile/steam/76561198067409816, C:\Users\Ryan\Desktop\RL\RLData.txt
-	;msgbox NumberOf3sGames()
+	UrlDownloadToFile http://rocketleague.tracker.network/profile/steam/76561198067409816, C:\Users\Ryan\Desktop\RL\RLData.txt ;Downloads the URL source to the file RLData.txt
+		
 	
+	newNumOf3sGames := NumberOf3sGames() ;Calls NumberOf3sGames function to get the new # of games played
+	new3sRank := Current3sRank() ;Calls Current3sRank function to get new 3s rank
 	
-	newNumOf3sGames := NumberOf3sGames()
-	new3sRank := Current3sRank()
+	newNumOf2sGames := NumberOf2sGames() ;Calls NumberOf2sGames function to get the new # of games played
+	new2sRank := Current2sRank() ;Calls Current2sRank function to get new 2s rank
 	
-	newNumOf2sGames := NumberOf2sGames()
-	new2sRank := Current2sRank()
+	newNumOf3SoloGames := NumberOf3SoloGames() ;see above
+	new3SoloRank := Current3SoloRank() ;see above
 	
-	newNumOf3SoloGames := NumberOf3SoloGames()
-	new3SoloRank := Current3SoloRank()
-	
+	;Checks to see if the number of games played is the same for all 3 game modes (aka, no new data)
 	If (newNumOf3sGames = iniNumOf3sGames AND newNumOf2sGames = iniNumOf2sGames AND newNumOf3SoloGames = iniNumOf3SoloGames)
 		{
 			GuiControl,,StatusText,No Change
 			return
 		}
-		
+	
+	;Checks to see if the number of gmaes played has decreased, which indicates a scraping error (or RegEx error)
 	If (newNumOf3sGames < iniNumOf3sGames)
 		{
 			GuiControl,,StatusText,Error in 3s Games
 			return
 		}
-		
+	
+	;Checks to see if the number of gmaes played has decreased, which indicates a scraping error (or RegEx error)	
 	If (newNumOf3SoloGames < iniNumOf3SoloGames)
 		{
 			GuiControl,,StatusText,Error in Standard Solo Games
 			return
 		}
 	
+	;Checks to see if the number of gmaes played has decreased, which indicates a scraping error (or RegEx error)
 	If (newNumOf2sGames < iniNumOf2sGames)
 		{
 			GuiControl,,StatusText,Error in 2s Games
 			return
 		}
 	
+	;Number of games has increased indicating new data. Writes the new data to the ini file and updates the gui
 	If (newNumOf3sGames > iniNumOf3sGames)
 		{
 			IniWrite, %ini3sRank%, %iniLocation%, 3v3Standard, PreviousRank
@@ -93,6 +89,7 @@ RunningUpdate:
 			return
 		}
 	
+	;Number of games has increased indicating new data. Writes the new data to the ini file and updates the gui
 	If (newNumOf2sGames > iniNumOf2sGames)
 		{
 			IniWrite, %ini2sRank%, %iniLocation%, Doubles, PreviousRank
@@ -106,7 +103,8 @@ RunningUpdate:
 			GuiControl,,StatusText,New Doubles Data
 			return
 		}
-		
+	
+	;Number of games has increased indicating new data. Writes the new data to the ini file and updates the gui	
 	If (newNumOf3SoloGames > iniNumOf3SoloGames)
 		{
 			IniWrite, %ini3SoloRank%, %iniLocation%, Solo Standard 3v3, PreviousRank
@@ -150,6 +148,7 @@ InitializeLocalData:
 	IniRead, iniNumOf3sGames, %iniLocation%, 3v3Standard, CurrentGameCount
 	IniRead, iniPrev3sRank, %iniLocation%, 3v3Standard, PreviousRank
 		
+		;Checks if these categories exist in the ini file. If not, they're created and filled with "No Data"
 		If (ini3sRank == "ERROR")
 			{
 			IniWrite, 0, %iniLocation%, 3v3Standard, CurrentRank ;Defaults the key to 0 if missing
@@ -168,6 +167,7 @@ InitializeLocalData:
 	IniRead, iniNumOf2sGames, %iniLocation%, Doubles, CurrentGameCount
 	IniRead, iniPrev2sRank, %iniLocation%, Doubles, PreviousRank
 		
+		;Checks if these categories exist in the ini file. If not, they're created and filled with "No Data"
 		If (ini2sRank == "ERROR")
 			{
 			IniWrite, 0, %iniLocation%, Doubles, CurrentRank ;Defaults the key to 0 if missing
@@ -186,6 +186,7 @@ InitializeLocalData:
 	IniRead, iniNumOf3SoloGames, %iniLocation%, Solo Standard 3v3, CurrentGameCount
 	IniRead, iniPrev3SoloRank, %iniLocation%, Solo Standard 3v3, PreviousRank
 		
+		;Checks if these categories exist in the ini file. If not, they're created and filled with "No Data"
 		If (ini3SoloRank == "ERROR")
 			{
 			IniWrite, 0, %iniLocation%, Solo Standard 3v3, CurrentRank ;Defaults the key to 0 if missing
@@ -207,7 +208,7 @@ return
 
 
 
-CreateInitialGui:
+CreateInitialGui: ;Creates the gui window. SmartGUI creator was used to do this.
 	Gui, +AlwaysOnTop +Owner
 	Gui, Font, S8 CDefault, Verdana
 	
@@ -215,6 +216,7 @@ CreateInitialGui:
 	Gui, Add, GroupBox, x42 y110 w330 h70 , Doubles
 	Gui, Add, GroupBox, x42 y199 w330 h70 , Solo Standard
 	
+	;Note: the "v" before the names indicates a variable name. So "vCurr3sRank" is a text field with the variable name "Curr3sRank"
 	Gui, Add, Text, x52 y60 w90 h20 vCurr3sRank +Center, No Data
 	Gui, Add, Text, x162 y60 w90 h20 vPrev3sRank +Center, No Data
 	Gui, Add, Text, x272 y60 w90 h20 v3sChange +Center, No Data
@@ -243,17 +245,17 @@ CreateInitialGui:
 	Gui, Show, x298 y167 h320 w420, RankGUI
 	return
 	
-	GuiClose:
+	GuiClose: ;Destroys the gui data when it is closed
 	Gui, Destroy
 	return
 
-Current3SoloRank() 
+Current3SoloRank() ;Function to grab Solo 3s rank info
 	{
 		FileRead, OutputVar, C:\Users\Ryan\Desktop\RL\RLData.txt
 		;SearchString = Ranked Standard 3v3
-		FoundPOS1 := RegExMatch(OutputVar, "Ranked Solo Standard 3v3")
-		FoundPOS2 := RegExMatch(OutputVar, "center;.>[\r\n].+\d{3}", 3soloRank, FoundPOS1)
-		Rval := RegExMatch(OutputVar, "\d{3}", 3soloRank, FoundPOS2)
+		FoundPOS1 := RegExMatch(OutputVar, "Ranked Solo Standard 3v3") ;1st RegEx match for the game mode heading. Position of match is stored in FoundPOS1
+		FoundPOS2 := RegExMatch(OutputVar, "center;.>[\r\n].+\d{3}", 3soloRank, FoundPOS1) ;Finds 3 digit number starting with the above position
+		Rval := RegExMatch(OutputVar, "\d{3}", 3soloRank, FoundPOS2) ;Assigns the rank to a variable
 		Return %3soloRank%
 	}
 
