@@ -37,11 +37,6 @@ RunningUpdate:
 	
 	UrlDownloadToFile http://rocketleague.tracker.network/profile/steam/76561198067409816, C:\Users\Ryan\Desktop\RL\RLData.txt ;Downloads the URL source to the file RLData.txt
 	
-	;###############################################################
-	newNumOf3SoloGames := NumberOf3SoloGames() ;see above
-	return
-
-	;#############################################################
 	
 	newNumOf3sGames := NumberOf3sGames() ;Calls NumberOf3sGames function to get the new # of games played
 	new3sRank := Current3sRank() ;Calls Current3sRank function to get new 3s rank
@@ -284,8 +279,8 @@ Current3SoloRank() ;Function to grab Solo 3s rank info
 		FileRead, OutputVar, C:\Users\Ryan\Desktop\RL\RLData.txt
 		;SearchString = Ranked Standard 3v3
 		FoundPOS1 := RegExMatch(OutputVar, "Ranked Solo Standard 3v3") ;1st RegEx match for the game mode heading. Position of match is stored in FoundPOS1
-		FoundPOS2 := RegExMatch(OutputVar, "center;.>[\r\n].+\d{3}", 3soloRank, FoundPOS1) ;Finds 3 digit number starting with the above position
-		Rval := RegExMatch(OutputVar, "\d{3}", 3soloRank, FoundPOS2) ;Assigns the rank to a variable
+		FoundPOS2 := RegExMatch(OutputVar, "season-rank", 3soloRank, FoundPOS1)
+		Rval := RegExMatch(OutputVar, "\d+", 3soloRank, FoundPOS2-115)
 		Return %3soloRank%
 	}
 
@@ -305,8 +300,9 @@ Current3sRank()
 		FileRead, OutputVar, C:\Users\Ryan\Desktop\RL\RLData.txt
 		;SearchString = Ranked Standard 3v3
 		FoundPOS1 := RegExMatch(OutputVar, "Ranked Standard 3v3")
-		FoundPOS2 := RegExMatch(OutputVar, "center;.>[\r\n].+\d{3}", 3sRank, FoundPOS1)
-		Rval := RegExMatch(OutputVar, "\d+", 3sRank, FoundPOS2)
+		FoundPOS2 := RegExMatch(OutputVar, "season-rank", 3sRank, FoundPOS1)
+		Rval := RegExMatch(OutputVar, "\d+", 3sRank, FoundPOS2-115)
+		
 		Return %3sRank%
 	}
 	
@@ -315,10 +311,9 @@ NumberOf3sGames()
 		FileRead, OutputVar, C:\Users\Ryan\Desktop\RL\RLData.txt
 		;SearchString = Ranked Standard 3v3
 		FoundPOS1 := RegExMatch(OutputVar, "Ranked Standard 3v3")
-		FoundPOS2 := RegExMatch(OutputVar, "center;.>[\r\n].+\d{3}", NumOfGames, FoundPOS1)
-		FoundPOS3 := RegExMatch(OutputVar, "center;.>[\r\n].+\d,\d{1,3}[\r\n]", NumOfGames, FoundPOS2+10)
-		Rval := RegExMatch(OutputVar, "\d,\d{3}", NumOfGames, FoundPOS3)
-		msgbox %NumOfGames%
+		FoundPOS2 := RegExMatch(OutputVar, "\/tr", NumOfGames, FoundPOS1)
+		FoundPOS3 := RegExMatch(OutputVar, "\d{1,4}", NumOfGames, FoundPOS2-130)
+		
 		Return %NumOfGames%
 	}
 
@@ -327,9 +322,8 @@ Current2sRank()
 		FileRead, OutputVar, C:\Users\Ryan\Desktop\RL\RLData.txt
 		;SearchString = Ranked Standard 3v3
 		FoundPOS1 := RegExMatch(OutputVar, "Ranked Doubles 2v2")
-		;FoundPOS2 := RegExMatch(OutputVar, "color:red\D+\d+.+",matchVar,FoundPOS1)
-		FoundPOS3 := RegExMatch(OutputVar, "center;.>[\r\n].+\d{3,4}", matchVar, FoundPOS1)
-		Rval := RegExMatch(OutputVar, "\d+", 2sRank, FoundPOS3)
+		FoundPOS2 := RegExMatch(OutputVar, "season-rank", 2sRank, FoundPOS1)
+		Rval := RegExMatch(OutputVar, "\d+", 2sRank, FoundPOS2-115)
 		Return %2sRank%
 	}
 
@@ -338,10 +332,8 @@ NumberOf2sGames()
 		FileRead, OutputVar, C:\Users\Ryan\Desktop\RL\RLData.txt
 		;SearchString = Ranked Standard 3v3
 		FoundPOS1 := RegExMatch(OutputVar, "Ranked Doubles 2v2")
-		FoundPOS2 := RegExMatch(OutputVar, "center;.>[\r\n].+\d{3,4}", NumOfGames, FoundPOS1) ;Rank Position
-		FoundPOS3 := RegExMatch(OutputVar, "center;.>[\r\n].+\d{3,4}", NumOfGames, FoundPOS2+80)
-		;FoundPOS4 := RegExMatch(OutputVar, "center;.>[\r\n].+\d+[\r\n]", NumOfGames, FoundPOS3+10)
-		Rval := RegExMatch(OutputVar, "\d+", NumOfGames, FoundPOS3)
+		FoundPOS2 := RegExMatch(OutputVar, "\/tr", NumOfGames, FoundPOS1)
+		FoundPOS3 := RegExMatch(OutputVar, "\d{1,4}", NumOfGames, FoundPOS2-130)
 		Return %NumOfGames%
 	}
 	
