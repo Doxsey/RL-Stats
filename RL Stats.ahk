@@ -10,6 +10,7 @@
 
 #NoEnv  ; Recommended for performance and compatibility with future AutoHotkey releases.
 SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
+#include C:\Users\Ryan\Documents\RLScript\RL_DB.ahk
 ;SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 
 return ;returns from initial load (otherwise it runs code until 1st return, i think anyway)
@@ -35,7 +36,12 @@ RunningUpdate:
 	
 	
 	UrlDownloadToFile http://rocketleague.tracker.network/profile/steam/76561198067409816, C:\Users\Ryan\Desktop\RL\RLData.txt ;Downloads the URL source to the file RLData.txt
-		
+	
+	;###############################################################
+	newNumOf3SoloGames := NumberOf3SoloGames() ;see above
+	return
+
+	;#############################################################
 	
 	newNumOf3sGames := NumberOf3sGames() ;Calls NumberOf3sGames function to get the new # of games played
 	new3sRank := Current3sRank() ;Calls Current3sRank function to get new 3s rank
@@ -81,6 +87,14 @@ RunningUpdate:
 			IniWrite, %new3sRank%, %iniLocation%, 3v3Standard, CurrentRank
 			IniWrite, %newNumOf3sGames%, %iniLocation%, 3v3Standard, CurrentGameCount
 			rankChange := new3sRank - ini3sRank
+			
+			UrlDownloadToFile http://rl.doxseycircus.com/insRL.php?GameMode=4&PreviousRank=%ini3sRank%&CurrentRank=%new3sRank%&Change=%rankChange%, C:\Users\Ryan\Desktop\RL\DB_Response.txt ;Downloads the URL source to the file RLData.txt
+			FileRead, OutputVar, C:\Users\Ryan\Desktop\RL\DB_Response.txt
+			;msgbox %OutputVar%
+			If (OutputVar != "Data Sent")
+						{
+						msgbox "Error in DB Send"
+						}
 				
 			GuiControl,,Curr3sRank,%new3sRank%
 			GuiControl,,Prev3sRank,%ini3sRank%
@@ -96,7 +110,15 @@ RunningUpdate:
 			IniWrite, %new2sRank%, %iniLocation%, Doubles, CurrentRank
 			IniWrite, %newNumOf2sGames%, %iniLocation%, Doubles, CurrentGameCount
 			rankChange := new2sRank - ini2sRank
-				
+			
+			UrlDownloadToFile http://rl.doxseycircus.com/insRL.php?GameMode=2&PreviousRank=%ini2sRank%&CurrentRank=%new2sRank%&Change=%rankChange%, C:\Users\Ryan\Desktop\RL\DB_Response.txt ;Downloads the URL source to the file RLData.txt
+			FileRead, OutputVar, C:\Users\Ryan\Desktop\RL\DB_Response.txt
+			;msgbox %OutputVar%
+			If (OutputVar != "Data Sent")
+						{
+						msgbox "Error in DB Send"
+						}
+			
 			GuiControl,,Curr2sRank,%new2sRank%
 			GuiControl,,Prev2sRank,%ini2sRank%
 			GuiControl,,2sChange,%rankChange%
@@ -111,7 +133,15 @@ RunningUpdate:
 			IniWrite, %new3SoloRank%, %iniLocation%, Solo Standard 3v3, CurrentRank
 			IniWrite, %newNumOf3SoloGames%, %iniLocation%, Solo Standard 3v3, CurrentGameCount
 			rankChange := new3SoloRank - ini3SoloRank
-				
+			
+			UrlDownloadToFile http://rl.doxseycircus.com/insRL.php?GameMode=3&PreviousRank=%ini3SoloRank%&CurrentRank=%new3SoloRank%&Change=%rankChange%, C:\Users\Ryan\Desktop\RL\DB_Response.txt ;Downloads the URL source to the file RLData.txt
+			FileRead, OutputVar, C:\Users\Ryan\Desktop\RL\DB_Response.txt
+			;msgbox %OutputVar%
+			If (OutputVar != "Data Sent")
+						{
+						msgbox "Error in DB Send"
+						}
+			
 			GuiControl,,Curr3SoloRank,%new3SoloRank%
 			GuiControl,,Prev3SoloRank,%ini3SoloRank%
 			GuiControl,,3SoloChange,%rankChange%
@@ -264,9 +294,9 @@ NumberOf3SoloGames()
 		FileRead, OutputVar, C:\Users\Ryan\Desktop\RL\RLData.txt
 		;SearchString = Ranked Standard 3v3
 		FoundPOS1 := RegExMatch(OutputVar, "Ranked Solo Standard 3v3")
-		FoundPOS2 := RegExMatch(OutputVar, "center;.>[\r\n].+\d{3}", NumOfGames, FoundPOS1)
-		FoundPOS3 := RegExMatch(OutputVar, "center;.>[\r\n].+\d{3,}[\r\n]", NumOfGames, FoundPOS2+10)
-		Rval := RegExMatch(OutputVar, "\d+", NumOfGames, FoundPOS3)
+		FoundPOS2 := RegExMatch(OutputVar, "\/tr", NumOfGames, FoundPOS1)
+		FoundPOS3 := RegExMatch(OutputVar, "\d{1,4}", NumOfGames, FoundPOS2-130)
+		;Rval := RegExMatch(OutputVar, "\d+", NumOfGames, FoundPOS3)
 		Return %NumOfGames%
 	}	
 
@@ -286,8 +316,9 @@ NumberOf3sGames()
 		;SearchString = Ranked Standard 3v3
 		FoundPOS1 := RegExMatch(OutputVar, "Ranked Standard 3v3")
 		FoundPOS2 := RegExMatch(OutputVar, "center;.>[\r\n].+\d{3}", NumOfGames, FoundPOS1)
-		FoundPOS3 := RegExMatch(OutputVar, "center;.>[\r\n].+\d{3,}[\r\n]", NumOfGames, FoundPOS2+10)
-		Rval := RegExMatch(OutputVar, "\d+", NumOfGames, FoundPOS3)
+		FoundPOS3 := RegExMatch(OutputVar, "center;.>[\r\n].+\d,\d{1,3}[\r\n]", NumOfGames, FoundPOS2+10)
+		Rval := RegExMatch(OutputVar, "\d,\d{3}", NumOfGames, FoundPOS3)
+		msgbox %NumOfGames%
 		Return %NumOfGames%
 	}
 
@@ -313,3 +344,6 @@ NumberOf2sGames()
 		Rval := RegExMatch(OutputVar, "\d+", NumOfGames, FoundPOS3)
 		Return %NumOfGames%
 	}
+	
+
+	
