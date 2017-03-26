@@ -279,38 +279,6 @@ CreateInitialGui: ;Creates the gui window. SmartGUI creator was used to do this.
 	Gui, Destroy
 	return
 
-Current3SoloRank() ;Function to grab Solo 3s rank info
-	{
-		FileRead, OutputVar, C:\Users\Ryan\Desktop\RL\RLData.txt
-		;SearchString = Ranked Standard 3v3
-		FoundPOS1 := RegExMatch(OutputVar, "Ranked Solo Standard 3v3") ;1st RegEx match for the game mode heading. Position of match is stored in FoundPOS1
-		FoundPOS2 := RegExMatch(OutputVar, "season-rank", 3soloRank, FoundPOS1)
-		Rval := RegExMatch(OutputVar, "\d+", 3soloRank, FoundPOS2-115)
-		Return %3soloRank%
-	}
-
-
-Current3sRank() 
-	{
-		FileRead, OutputVar, C:\Users\Ryan\Desktop\RL\RLData.txt
-		;SearchString = Ranked Standard 3v3
-		FoundPOS1 := RegExMatch(OutputVar, "Ranked Standard 3v3")
-		FoundPOS2 := RegExMatch(OutputVar, "season-rank", 3sRank, FoundPOS1)
-		Rval := RegExMatch(OutputVar, "\d+", 3sRank, FoundPOS2-115)
-		
-		Return %3sRank%
-	}
-	
-
-Current2sRank() 
-	{
-		FileRead, OutputVar, C:\Users\Ryan\Desktop\RL\RLData.txt
-		;SearchString = Ranked Standard 3v3
-		FoundPOS1 := RegExMatch(OutputVar, "Ranked Doubles 2v2")
-		FoundPOS2 := RegExMatch(OutputVar, "season-rank", 2sRank, FoundPOS1)
-		Rval := RegExMatch(OutputVar, "\d+", 2sRank, FoundPOS2-115)
-		Return %2sRank%
-	}
 
 CurrentRank(gameMode) 
 	{
