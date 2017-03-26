@@ -35,17 +35,22 @@ RunningUpdate:
 	GuiControl,,StatusText,Updating... ;Changes the text "StatusText" to "Updating..."
 	
 	
+
 	UrlDownloadToFile http://rocketleague.tracker.network/profile/steam/76561198067409816, C:\Users\Ryan\Desktop\RL\RLData.txt ;Downloads the URL source to the file RLData.txt
 	
+	;####################################################################
 	
-	newNumOf3sGames := NumberOf3sGames() ;Calls NumberOf3sGames function to get the new # of games played
-	new3sRank := Current3sRank() ;Calls Current3sRank function to get new 3s rank
 	
-	newNumOf2sGames := NumberOf2sGames() ;Calls NumberOf2sGames function to get the new # of games played
-	new2sRank := Current2sRank() ;Calls Current2sRank function to get new 2s rank
 	
-	newNumOf3SoloGames := NumberOf3SoloGames() ;see above
-	new3SoloRank := Current3SoloRank() ;see above
+	
+	newNumOf3sGames := NumberOfGames("Ranked Standard 3v3") ;Calls NumberOf3sGames function to get the new # of games played
+	new3sRank := CurrentRank("Ranked Standard 3v3") ;Calls Current3sRank function to get new 3s rank
+	
+	newNumOf2sGames := NumberOfGames("Ranked Doubles 2v2") ;Calls NumberOf2sGames function to get the new # of games played
+	new2sRank := CurrentRank("Ranked Doubles 2v2") ;Calls Current2sRank function to get new 2s rank
+	
+	newNumOf3SoloGames := NumberOfGames("Ranked Solo Standard 3v3") ;see above
+	new3SoloRank := CurrentRank("Ranked Solo Standard 3v3") ;see above
 	
 	;Checks to see if the number of games played is the same for all 3 game modes (aka, no new data)
 	If (newNumOf3sGames = iniNumOf3sGames AND newNumOf2sGames = iniNumOf2sGames AND newNumOf3SoloGames = iniNumOf3SoloGames)
@@ -64,7 +69,7 @@ RunningUpdate:
 	;Checks to see if the number of gmaes played has decreased, which indicates a scraping error (or RegEx error)	
 	If (newNumOf3SoloGames < iniNumOf3SoloGames)
 		{
-			GuiControl,,StatusText,Error in Standard Solo Games
+			GuiControl,,StatusText,Error in Std Solo Games
 			return
 		}
 	
@@ -284,16 +289,6 @@ Current3SoloRank() ;Function to grab Solo 3s rank info
 		Return %3soloRank%
 	}
 
-NumberOf3SoloGames()
-	{
-		FileRead, OutputVar, C:\Users\Ryan\Desktop\RL\RLData.txt
-		;SearchString = Ranked Standard 3v3
-		FoundPOS1 := RegExMatch(OutputVar, "Ranked Solo Standard 3v3")
-		FoundPOS2 := RegExMatch(OutputVar, "\/tr", NumOfGames, FoundPOS1)
-		FoundPOS3 := RegExMatch(OutputVar, "\d{1,4}", NumOfGames, FoundPOS2-130)
-		;Rval := RegExMatch(OutputVar, "\d+", NumOfGames, FoundPOS3)
-		Return %NumOfGames%
-	}	
 
 Current3sRank() 
 	{
@@ -306,16 +301,6 @@ Current3sRank()
 		Return %3sRank%
 	}
 	
-NumberOf3sGames()
-	{
-		FileRead, OutputVar, C:\Users\Ryan\Desktop\RL\RLData.txt
-		;SearchString = Ranked Standard 3v3
-		FoundPOS1 := RegExMatch(OutputVar, "Ranked Standard 3v3")
-		FoundPOS2 := RegExMatch(OutputVar, "\/tr", NumOfGames, FoundPOS1)
-		FoundPOS3 := RegExMatch(OutputVar, "\d{1,4}", NumOfGames, FoundPOS2-130)
-		
-		Return %NumOfGames%
-	}
 
 Current2sRank() 
 	{
@@ -327,15 +312,53 @@ Current2sRank()
 		Return %2sRank%
 	}
 
-NumberOf2sGames()
+CurrentRank(gameMode) 
 	{
 		FileRead, OutputVar, C:\Users\Ryan\Desktop\RL\RLData.txt
 		;SearchString = Ranked Standard 3v3
-		FoundPOS1 := RegExMatch(OutputVar, "Ranked Doubles 2v2")
+		FoundPOS1 := RegExMatch(OutputVar, gameMode)
+		FoundPOS2 := RegExMatch(OutputVar, "season-rank", Rank, FoundPOS1)
+		Rval := RegExMatch(OutputVar, "\d+", Rank, FoundPOS2-115)
+		Return %Rank%
+	}	
+	
+	
+NumberOfGames(gameMode)
+	{
+		FileRead, OutputVar, C:\Users\Ryan\Desktop\RL\RLData.txt
+		;SearchString = Ranked Standard 3v3
+		FoundPOS1 := RegExMatch(OutputVar, gameMode)
 		FoundPOS2 := RegExMatch(OutputVar, "\/tr", NumOfGames, FoundPOS1)
-		FoundPOS3 := RegExMatch(OutputVar, "\d{1,4}", NumOfGames, FoundPOS2-130)
+			;Looks for "Win Streak" text. Changes the offset if the win streak text is there
+				winStreak := RegExMatch(OutputVar, "small", NumOfGames, FoundPOS2-130)
+				possWinStreak := (FoundPOS2-winStreak)
+				if (FoundPOS2-winStreak > 0)
+					{
+						FoundPOS3 := RegExMatch(OutputVar, "\d{1,4}", NumOfGames, FoundPOS2-380)
+						Return %NumOfGames%
+					}
+		FoundPOS3 := RegExMatch(OutputVar, "\d{1,4}", NumOfGames, FoundPOS2-150)
 		Return %NumOfGames%
 	}
 	
-
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
