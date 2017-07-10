@@ -52,6 +52,8 @@ RunningUpdate:
 	newNumOf3SoloGames := NumberOfGames("Ranked Solo Standard 3v3") ;see above
 	new3SoloRank := CurrentRank("Ranked Solo Standard 3v3") ;see above
 	
+		
+	
 	;Checks to see if the number of games played is the same for all 3 game modes (aka, no new data)
 	If (newNumOf3sGames = iniNumOf3sGames AND newNumOf2sGames = iniNumOf2sGames AND newNumOf3SoloGames = iniNumOf3SoloGames)
 		{
@@ -272,7 +274,7 @@ CreateInitialGui: ;Creates the gui window. SmartGUI creator was used to do this.
 	Gui, Add, Text, x162 y219 w90 h20 +Center, Previous Rank
 	Gui, Add, Text, x272 y219 w90 h20 +Center, Change
 	
-	Gui, Show, x298 y167 h320 w420, RankGUI
+	Gui, Show, x2130 y10 h320 w420, RankGUI
 	return
 	
 	GuiClose: ;Destroys the gui data when it is closed
@@ -286,8 +288,9 @@ CurrentRank(gameMode)
 		;SearchString = Ranked Standard 3v3
 		FoundPOS1 := RegExMatch(OutputVar, gameMode)
 		FoundPOS2 := RegExMatch(OutputVar, "season-rank", Rank, FoundPOS1)
-		Rval := RegExMatch(OutputVar, "\d+", Rank, FoundPOS2-115)
-		Return %Rank%
+		Rval := RegExMatch(OutputVar, "[\d,]+", Rank, FoundPOS2-115)
+		StringReplace, NumRank, Rank,% ",",,
+		Return %NumRank%
 	}	
 	
 	
@@ -306,6 +309,7 @@ NumberOfGames(gameMode)
 						Return %NumOfGames%
 					}
 		FoundPOS3 := RegExMatch(OutputVar, "\d{1,4}", NumOfGames, FoundPOS2-150)
+		
 		Return %NumOfGames%
 	}
 	
