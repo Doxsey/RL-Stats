@@ -288,7 +288,8 @@ CurrentRank(gameMode)
 		;SearchString = Ranked Standard 3v3
 		FoundPOS1 := RegExMatch(OutputVar, gameMode)
 		FoundPOS2 := RegExMatch(OutputVar, "season-rank", Rank, FoundPOS1)
-		Rval := RegExMatch(OutputVar, "[\d,]+", Rank, FoundPOS2-115)
+		Rval := RegExMatch(OutputVar, "\d{3}|(\d,\d{3})", Rank, FoundPOS2-115)
+			
 		StringReplace, NumRank, Rank,% ",",,
 		Return %NumRank%
 	}	
