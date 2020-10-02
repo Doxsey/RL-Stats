@@ -63,7 +63,7 @@ RunningUpdate:
 	
 	
 	;Checks to see if rank has changed (aka, no new data)
-	If (new3sRank = ini3sRank AND new2sRank = ini2sRank AND new3SoloRank = ini3SoloRank)
+	If (new3sRank = ini3sRank AND new2sRank = ini2sRank)
 		{
 			GuiControl,,StatusText,No Change
 			return
@@ -149,34 +149,6 @@ RunningUpdate:
 			return 
 		}
 	
-	If (new3SoloRank != ini3SoloRank) ;Rank changed
-		{
-			IniWrite, %ini3SoloRank%, %iniLocation%, Solo Standard 3v3, PreviousRank
-			IniWrite, %new3SoloRank%, %iniLocation%, Solo Standard 3v3, CurrentRank
-			rankChange := new3SoloRank - ini3SoloRank
-			
-			
-			UrlDownloadToFile http://rl.doxseycircus.com/insRL.php?GameMode=3&PreviousRank=%ini3SoloRank%&CurrentRank=%new3SoloRank%&Change=%rankChange%&Goals=%goalChange%&Saves=%saveChange%&Shots=%shotChange%&Assists=%assistChange%&MVP=%mvpChange%, %folderLoc%DB_Response.txt ;Downloads the URL source to the file RLData.txt 
-			FileRead, OutputVar, %folderLoc%DB_Response.txt 
-			
-			GuiControl,,Curr3SoloRank,%new3SoloRank%
-			GuiControl,,Prev3SoloRank,%ini3SoloRank%
-			GuiControl,,3SoloChange,%rankChange%
-			GuiControl,,3sChange,0
-			GuiControl,,2sChange,0
-			
-			GuiControl,,StatusText,New 3v3 Solo Data
-			
-			If (OutputVar != "Data Sent")
-						{
-						GuiControl,,StatusText,New 3v3 Solo Data (Error in DB Send)
-						}
-				
-			
-			return 
-		}
-	
-
 	return
 }
 
@@ -382,7 +354,8 @@ InitializePerformanceStats:
 	
 	
 	;##########################################
-	UrlDownloadToFile https://rocketleague.tracker.network/rocket-league/profile/steam/76561198067409816/overview, %folderLoc%RL_PData.txt
+	UrlDownloadToFile https://rocketleague.tracker.network/rocket-league/profile/steam/76561198067409816/overview, %folderLoc%RLData.txt
+	;UrlDownloadToFile https://rocketleague.tracker.network/rocket-league/profile/steam/76561198067409816/overview, %folderLoc%RL_PData.txt
 	;##########################################
 	
 	Goals := GetPerformanceStat("Goals")
