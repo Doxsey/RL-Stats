@@ -45,22 +45,20 @@ RunningUpdate:
 	IniRead, iniPrev3SoloRank, %iniLocation%, Solo Standard 3v3, PreviousRank
 	
 	
-	
-	
-	UrlDownloadToFile https://rocketleague.tracker.network/profile/steam/76561198067409816, %folderLoc%RL_PData.txt
+	;UrlDownloadToFile https://rocketleague.tracker.network/profile/steam/76561198067409816, %folderLoc%RL_PData.txt
 
-	UrlDownloadToFile https://rocketleague.tracker.network/profile/mmr/steam/76561198067409816, %folderLoc%RLData.txt ;Downloads the URL source to the file RLData.txt
+	UrlDownloadToFile https://rocketleague.tracker.network/rocket-league/profile/steam/76561198067409816/overview, %folderLoc%RLData.txt ;Downloads the URL source to the file RLData.txt
 
 	
-	
+		
 	;newNumOf3sGames := NumberOfGames("Ranked Standard 3v3") ;Calls NumberOf3sGames function to get the new # of games played
 	new3sRank := CurrentRank("Ranked Standard 3v3") ;Calls Current3sRank function to get new 3s rank
-	
+		
 	;newNumOf2sGames := NumberOfGames("Ranked Doubles 2v2") ;Calls NumberOf2sGames function to get the new # of games played
 	new2sRank := CurrentRank("Ranked Doubles 2v2") ;Calls Current2sRank function to get new 2s rank
 	
 	;newNumOf3SoloGames := NumberOfGames("Ranked Solo Standard 3v3") ;see above
-	new3SoloRank := CurrentRank("Ranked Solo Standard 3v3") ;see above
+	;new3SoloRank := CurrentRank("Ranked Solo Standard 3v3") ;see above
 	
 	
 	
@@ -268,8 +266,8 @@ InitializeLocalData:
 	
 UpdateLocalData:
 	{
-	UrlDownloadToFile https://rocketleague.tracker.network/profile/mmr/steam/76561198067409816, %folderLoc%RLData.txt ;################################
-	UrlDownloadToFile https://rocketleague.tracker.network/profile/steam/76561198067409816, %folderLoc%RL_PData.txt
+	UrlDownloadToFile https://rocketleague.tracker.network/rocket-league/profile/steam/76561198067409816/overview, %folderLoc%RLData.txt ;################################
+	;UrlDownloadToFile https://rocketleague.tracker.network/profile/steam/76561198067409816, %folderLoc%RL_PData.txt
 	return
 	}
 	
@@ -340,8 +338,10 @@ CurrentRank(gameMode)
 		FileRead, OutputVar, %DataSource%
 		;SearchString = Ranked Standard 3v3
 		FoundPOS1 := RegExMatch(OutputVar, gameMode)
-		FoundPOS2 := RegExMatch(OutputVar, "badge", Rank, FoundPOS1)
-		Rval := RegExMatch(OutputVar, "\d{3,4}", Rank, FoundPOS2)
+		FoundPOS2 := RegExMatch(OutputVar, "match__rating--value", Rank, FoundPOS1)
+		FoundPOS3 := RegExMatch(OutputVar, ">", Rank, FoundPOS2)
+		Rval := RegExMatch(OutputVar, "\d+,?\d*", Rank, FoundPOS3)
+		Rank := StrReplace(Rank, ",")
 		;StringReplace, NumRank, Rank,% ",",,
 		Return %Rank%
 	}
@@ -376,10 +376,14 @@ InitializePerformanceStats:
 			{
 			IniWrite, 0, %iniLocation%, PerformanceStats, MVPs ;Defaults the key to 0 if missing
 			}
+	
 	Gui +LastFound ;Sets gui control to the last found ahk gui.
 	GuiControl,,StatusText,Downloading Initial Stats... ;Changes the text "StatusText" to "Updating..."
 	
-	UrlDownloadToFile https://rocketleague.tracker.network/profile/steam/76561198067409816, %folderLoc%RL_PData.txt
+	
+	;##########################################
+	UrlDownloadToFile https://rocketleague.tracker.network/rocket-league/profile/steam/76561198067409816/overview, %folderLoc%RL_PData.txt
+	;##########################################
 	
 	Goals := GetPerformanceStat("Goals")
 	Saves := GetPerformanceStat("Saves")
@@ -387,6 +391,18 @@ InitializePerformanceStats:
 	Assists := GetPerformanceStat("Assists")
 	MVPs := GetPerformanceStat("MVPs")
 	
+	
+	If Goals is not integer
+		Goals := 0
+	If Saves is not integer
+		Saves := 0
+	If Shots is not integer
+		Shots := 0
+	If Assists is not integer
+		Assists := 0
+	If MVPs is not integer
+		MVPs := 0
+		
 	IniWrite, %Goals%, %iniLocation%, PerformanceStats, Goals
 	IniWrite, %Saves%, %iniLocation%, PerformanceStats, Saves
 	IniWrite, %Shots%, %iniLocation%, PerformanceStats, Shots
@@ -445,26 +461,13 @@ UpdatePerformanceStats:
 	
 GetPerformanceStat(requestedStat)
 	{
-	FileRead, OutputVar, %FolderLoc%RL_PData.txt
-	;FileRead, OutputVar, C:\Users\Ryan\Desktop\RL\RL_PData.txt
-	FoundPOS1 := RegExMatch(OutputVar, "data-stat=""" . requestedStat . """")
-	Rval := RegExMatch(OutputVar, "\d{3}|\d{1,2},\d{3}", PData, FoundPOS1)
-	StringReplace, PDataClean, PData,% ",",,
-	;msgbox %PDataClean%
-	return %PDataClean%
+	FileRead, OutputVar, %FolderLoc%RLData.txt.
+	FoundPOS1 := RegExMatch(OutputVar, "<span title=""" . requestedStat . """ class=""name"" data-")
+	FoundPOS2 := RegExMatch(OutputVar, "span class=""value""", PData, FoundPOS1)
+	FoundPOS3 := RegExMatch(OutputVar, ">\d+,?\d+", PData, FoundPOS2)
+	PData := StrReplace(PData, ">")
+	PData := StrReplace(PData, ",")
+	return %PData%
 	}
 		
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	
